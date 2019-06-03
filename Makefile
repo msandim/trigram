@@ -1,6 +1,10 @@
 build:
 	go build
 
+run:
+	go build
+	./trigram
+
 clean:
 	rm trigram
 

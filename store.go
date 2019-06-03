@@ -4,6 +4,9 @@ import (
 	"sync"
 )
 
+// Trigram represents a sequence of 3 strings
+type Trigram [3]string
+
 // TrigramStore represents the storage of trigrams found until now.
 type TrigramStore struct {
 	trigrams map[string]map[string]map[string]int
@@ -24,7 +27,7 @@ func NewTrigramStore() *TrigramStore {
 }
 
 // AddTrigram adds a trigram to the store, increasing its "popularity" if it's already present in the store.
-func (store *TrigramStore) AddTrigram(trigram [3]string) {
+func (store *TrigramStore) AddTrigram(trigram Trigram) {
 
 	store.mutex.Lock()
 
@@ -50,11 +53,13 @@ func (store *TrigramStore) AddTrigram(trigram [3]string) {
 }
 
 // MakeText generates a random text with the trigrams present in the store.
-func (store *TrigramStore) MakeText() []string {
+func (store *TrigramStore) MakeText() string {
 	store.mutex.Lock()
 	defer store.mutex.Unlock()
 
-	return []string{}
+	// TODO: generate text
+
+	return "lol"
 }
 
 func (store *TrigramStore) getTrigramFreq(trigram [3]string) int {
