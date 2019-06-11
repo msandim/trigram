@@ -1,7 +1,7 @@
 package main
 
 func chooseRandomlyInitialTrigram(trigramMap TrigramMap) {
-
+	trigramMap[]
 }
 
 func main() {
