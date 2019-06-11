@@ -1,10 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
+	"strings"
 )
 
 // Server is ....
@@ -37,13 +39,52 @@ func (server *Server) learnHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := string(bodyBytes)
-	fmt.Println("GOT A LEARNING REQUEST: ", body)
 
-	// Parse trigram:
-	trigram := Trigram{"stuff1", "mariah", "brooklyn"}
-	server.store.AddTrigram(trigram)
+	err = server.learnText(body)
+
+	if err != nil {
+		http.Error(w, "error while learning this text'", http.StatusBadRequest)
+	}
 }
 
+func (server *Server) learnText(text string) error {
+
+	// Get trigrams:
+	trigrams, err := parseTrigrams(text)
+
+	if err != nil {
+		return err
+	}
+
+	for _, trigram := range trigrams {
+		server.store.AddTrigram(trigram)
+	}
+
+	return nil
+}
+
+func parseTrigrams(text string) ([]Trigram, error) {
+
+	// Remove any special characters and make all characters lower-case:
+	text = strings.ToLower(regexp.MustCompile(`(?m)\.|,|!|\?;`).ReplaceAllString(text, ""))
+
+	words := strings.Split(text, " ")
+
+	if len(words) < 3 {
+		return nil, errors.New("text to learn has less than 3 words")
+	}
+
+	var trigrams []Trigram
+
+	for i := 0; i < len(words)-2; i++ {
+		trigram := Trigram{words[i], words[i+1], words[i+2]}
+		trigrams = append(trigrams, trigram)
+	}
+
+	return trigrams, nil
+}
+
+// GenerateHandler is
 func (server *Server) generateHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
@@ -51,10 +92,13 @@ func (server *Server) generateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	text := server.store.MakeText()
+	text := server.makeText()
 
-	fmt.Println("GENERATE THIS TEXT ", text)
 	w.Write([]byte(text))
+}
+
+func (server *Server) makeText() string {
+	return server.store.MakeText()
 }
 
 // Run does
