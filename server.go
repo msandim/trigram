@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -43,7 +44,7 @@ func (server *Server) learnHandler(w http.ResponseWriter, r *http.Request) {
 	err = server.learnText(body)
 
 	if err != nil {
-		http.Error(w, "error while learning this text'", http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("error while learning this text: %s", err), http.StatusBadRequest)
 	}
 }
 
@@ -66,12 +67,12 @@ func (server *Server) learnText(text string) error {
 func parseTrigrams(text string) ([]Trigram, error) {
 
 	// Remove any special characters and make all characters lower-case:
-	text = strings.ToLower(regexp.MustCompile(`(?m)\.|,|!|\?;`).ReplaceAllString(text, ""))
+	text = strings.ToLower(regexp.MustCompile(`\.|,|;|!|\?`).ReplaceAllString(text, ""))
 
 	words := strings.Split(text, " ")
 
 	if len(words) < 3 {
-		return nil, errors.New("text to learn has less than 3 words")
+		return nil, errors.New("text to learn needs to have more than 3 words")
 	}
 
 	var trigrams []Trigram

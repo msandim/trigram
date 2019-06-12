@@ -8,15 +8,16 @@ import (
 // Trigram represents a sequence of 3 strings
 type Trigram [3]string
 
-// TrigramMap is...
+// TrigramMap is a 3-dimensional map which represents the frequency of each trigram.
 type TrigramMap map[string]map[string]map[string]int
 
 // TrigramStore represents the storage of trigrams found until now.
+// It basically encapsulates a TrigramMap with a mutex and some functions which can be set to perform searches on the TrigramMap.
 type TrigramStore struct {
-	trigrams              TrigramMap
-	mutex                 *sync.Mutex
-	initialTrigramChooser func(TrigramMap) Trigram
-	nextWordChooser       func(map[string]int) string
+	trigrams              TrigramMap                  // Check documentation of TrigramMap above.
+	mutex                 *sync.Mutex                 // Mutex to control accesses to the TrigramMap
+	initialTrigramChooser func(TrigramMap) Trigram    // Function that given a TrigramMap, returns a first trigram to start the text with.
+	nextWordChooser       func(map[string]int) string // Function that given the frequencies of each possible word to go next, selects one.
 }
 
 // NewTrigramStore creates a new TrigramStore.
@@ -62,11 +63,14 @@ func (store *TrigramStore) MakeText() string {
 	var text []string
 	var last2Words [2]string
 
-	// Make a text with 10 trigrams:
-	for i := 0; i < 10; i++ {
+	// Make a text with 100 trigrams maximum:
+	for i := 0; i < 100; i++ {
 		if len(text) > 0 {
-			// Choose the next word:
+			// Choose the next word, except if we encountered a path with zero possibilities for the next word.
 			possibleNextWords := store.trigrams[last2Words[0]][last2Words[1]]
+			if len(possibleNextWords) == 0 {
+				break
+			}
 			nextWord := store.nextWordChooser(possibleNextWords)
 			text = append(text, nextWord)
 
@@ -74,7 +78,7 @@ func (store *TrigramStore) MakeText() string {
 			last2Words[0] = last2Words[1]
 			last2Words[1] = nextWord
 		} else {
-			// Choose a random trigram:
+			// Choose a random trigram to start:
 			trigram := store.initialTrigramChooser(store.trigrams)
 			text = append(text, trigram[:]...)
 
