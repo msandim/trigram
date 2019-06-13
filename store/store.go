@@ -1,4 +1,4 @@
-package main
+package store
 
 import (
 	"strings"
@@ -14,23 +14,21 @@ type TrigramMap map[string]map[string]map[string]int
 // TrigramStore represents the storage of trigrams found until now.
 // It basically encapsulates a TrigramMap with a mutex and some functions which can be set to perform searches on the TrigramMap.
 type TrigramStore struct {
-	trigrams              TrigramMap                  // Check documentation of TrigramMap above.
-	mutex                 *sync.Mutex                 // Mutex to control accesses to the TrigramMap
-	initialTrigramChooser func(TrigramMap) Trigram    // Function that given a TrigramMap, returns a first trigram to start the text with.
-	nextWordChooser       func(map[string]int) string // Function that given the frequencies of each possible word to go next, selects one.
+	trigrams TrigramMap  // Check documentation of TrigramMap above.
+	mutex    *sync.Mutex // Mutex to control accesses to the TrigramMap
+	chooser  Chooser
 }
 
 // NewTrigramStore creates a new TrigramStore.
-func NewTrigramStore(initialTrigramChooser func(TrigramMap) Trigram, nextWordChooser func(map[string]int) string) *TrigramStore {
+func NewTrigramStore(chooser Chooser) *TrigramStore {
 	var store TrigramStore
 	store.trigrams = make(map[string]map[string]map[string]int)
 	store.mutex = &sync.Mutex{}
-	store.initialTrigramChooser = initialTrigramChooser
-	store.nextWordChooser = nextWordChooser
+	store.chooser = chooser
 	return &store
 }
 
-// AddTrigram adds a trigram to the store, increasing its "popularity" if it's already present in the store.
+// AddTrigram adds a trigram to the store, increasing its "frequency" if it's already present in the store.
 func (store *TrigramStore) AddTrigram(trigram Trigram) {
 
 	store.mutex.Lock()
@@ -71,7 +69,7 @@ func (store *TrigramStore) MakeText() string {
 			if len(possibleNextWords) == 0 {
 				break
 			}
-			nextWord := store.nextWordChooser(possibleNextWords)
+			nextWord := store.chooser.ChooseNextWord(possibleNextWords)
 			text = append(text, nextWord)
 
 			// Update the last 2 words:
@@ -79,7 +77,7 @@ func (store *TrigramStore) MakeText() string {
 			last2Words[1] = nextWord
 		} else {
 			// Choose a random trigram to start:
-			trigram := store.initialTrigramChooser(store.trigrams)
+			trigram := store.chooser.ChooseInitialTrigram(store.trigrams)
 			text = append(text, trigram[:]...)
 
 			// Update the last 2 words:

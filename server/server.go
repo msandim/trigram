@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"errors"
@@ -8,15 +8,17 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+
+	"github.com/msandim/trigram/store"
 )
 
 // Server is ....
 type Server struct {
-	store *TrigramStore
+	store *store.TrigramStore
 }
 
 // NewServer does ...
-func NewServer(store *TrigramStore) *Server {
+func NewServer(store *store.TrigramStore) *Server {
 	return &Server{store: store}
 }
 
@@ -35,7 +37,7 @@ func (server *Server) learnHandler(w http.ResponseWriter, r *http.Request) {
 	bodyBytes, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
-		http.Error(w, "invalid body received'", http.StatusMethodNotAllowed)
+		http.Error(w, "invalid body received", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -64,7 +66,7 @@ func (server *Server) learnText(text string) error {
 	return nil
 }
 
-func parseTrigrams(text string) ([]Trigram, error) {
+func parseTrigrams(text string) ([]store.Trigram, error) {
 
 	// Remove any special characters and make all characters lower-case:
 	text = strings.ToLower(regexp.MustCompile(`\.|,|;|!|\?`).ReplaceAllString(text, ""))
@@ -75,10 +77,10 @@ func parseTrigrams(text string) ([]Trigram, error) {
 		return nil, errors.New("text to learn needs to have more than 3 words")
 	}
 
-	var trigrams []Trigram
+	var trigrams []store.Trigram
 
 	for i := 0; i < len(words)-2; i++ {
-		trigram := Trigram{words[i], words[i+1], words[i+2]}
+		trigram := store.Trigram{words[i], words[i+1], words[i+2]}
 		trigrams = append(trigrams, trigram)
 	}
 
