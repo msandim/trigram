@@ -1,3 +1,4 @@
+// Package main starts the trigram program, running its API on localhost:8080.
 package main
 
 import (
