@@ -54,13 +54,25 @@ func TestAddTrigram(t *testing.T) {
 
 func TestMakeText(t *testing.T) {
 	
-	store := NewMapTrigramStore(&TestChooser{})
+	var store TrigramStore
+	var text string
+
+	// Store has no trigrams:
+	store = NewMapTrigramStore(&TestChooser{})
+	text = store.MakeText()
+
+	if (text != "") {
+		t.Fatalf("Text is invalid. Got %s", text)
+	}
+
+	// Store has trigrams:
+	store = NewMapTrigramStore(&TestChooser{})
 
 	store.AddTrigram([3]string{"a", "b", "c"})
 	store.AddTrigram([3]string{"b", "c", "d"})
 	store.AddTrigram([3]string{"b", "c", "e"})
 
-	text := store.MakeText()
+	text = store.MakeText()
 
 	if (text != "a b c d") {
 		t.Fatalf("Text is invalid. Got %s", text)

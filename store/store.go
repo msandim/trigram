@@ -67,6 +67,10 @@ func (store *TrigramMapStore) MakeText() string {
 	var text []string
 	var last2Words [2]string
 
+	if len(store.trigrams) == 0 {
+		return ""
+	}
+
 	// Make a text with 100 trigrams maximum:
 	for i := 0; i < 100; i++ {
 		if len(text) > 0 {
