@@ -6,18 +6,18 @@ import (
 	"time"
 )
 
-// Chooser is ...
+// Chooser is structure that knows how to choose the next trigram/word to use in a given moment.
 type Chooser interface {
-	// ChooseInitialTrigram is ...
+	// ChooseInitialTrigram chooses the initial trigram to start a text with, given a TrigramMap of available trigrams.
 	ChooseInitialTrigram(availableTrigrams TrigramMap) Trigram
-	// ChooseNextWord is ...
+	// ChooseNextWord chooses the next word to use within a text, given the frequencies of each possible word to be used at this point.
 	ChooseNextWord(possibleWords map[string]int) string
 }
 
-// RandomChooser does....
+// RandomChooser implements a Chooser that makes random decisions.
 type RandomChooser struct{}
 
-// ChooseInitialTrigram does ...
+// ChooseInitialTrigram chooses randomly a trigram to start the text.
 func (c *RandomChooser) ChooseInitialTrigram(trigramMap TrigramMap) Trigram {
 	rand.Seed(time.Now().UnixNano())
 
@@ -52,13 +52,14 @@ func (c *RandomChooser) ChooseInitialTrigram(trigramMap TrigramMap) Trigram {
 	}
 
 	if word1 == "" || word2 == "" || word3 == "" {
-		fmt.Println("WARNING: Could not randomly choose initial trigram to make text. Will use a trigram amde of empty strings.")
+		fmt.Println("WARNING: Could not randomly choose initial trigram to make text. Will use a trigram made of empty strings.")
 	}
 
 	return Trigram{word1, word2, word3}
 }
 
-// ChooseNextWord does...
+// ChooseNextWord chooses randomly the next word to complete the text with.
+// This random selection takes into account the frequencies of the sequencenin the learned texts.
 func (c *RandomChooser) ChooseNextWord(wordFreqs map[string]int) string {
 
 	// Count total frequencies:
