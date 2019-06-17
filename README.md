@@ -58,7 +58,7 @@ Note that we will have a 66% probability of choosing `or` as the next word, vers
 Currently memory usage is fairly optimized.
 The trigrams are saved in a structure of type `map[string]map[string]map[string]int`, which represents a 3-dimensional map of frequencies of trigrams.
 
-`ourMap["to"]["be"]["or"]` being 2, means that this sequence of words was found 3 times during past learning processes.
+`ourMap["to"]["be"]["or"]` being 2, means that this sequence of words was found 2 times during past learning processes.
 
 `ourMap["to"]["be"]` would return a map of possible endings for the trigram and their frequency. In the case of the example above, it would return `{"or": 2, "that": 1}`
 
@@ -76,5 +76,5 @@ Also:
 This would make the program more efficient both at learning (because we weren't be writing always on the same memory space/node, as different trigrams would be allocated to different nodes) and generating (because we wouldn't be needing to request access to the same memory node).
 However it's important to say that this would increase the complexity of both operations slightly.
 
-- Give priority somehow to `/learn` requests, as opposed to `generate` requests.
-Assuming this program would be used by a Slack bot, it makes sense the `/learn` endpoint will be a lot more used than the `/generate` one. It would be interesting if these operations could have a different priority in accessing the datastore (`/generate` would have a higher priority) in this case).
+- Give priority somehow to `/learn` requests, as opposed to `/generate` requests.
+Assuming this program would be used by a Slack bot, it makes sense the `/learn` endpoint will be a lot more used than the `/generate` one. It would be interesting if these operations could have a different priority in accessing the datastore (`/generate` would have a higher priority in this case).
