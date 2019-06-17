@@ -7,7 +7,7 @@ import (
 
 func TestAddTrigram(t *testing.T) {
 
-	store := NewTrigramStore(&RandomChooser{})
+	store := NewMapTrigramStore(&TestChooser{})
 	var trigram [3]string
 	var n int
 
@@ -52,10 +52,25 @@ func TestAddTrigram(t *testing.T) {
 	}
 }
 
+func TestMakeText(t *testing.T) {
+	
+	store := NewMapTrigramStore(&TestChooser{})
+
+	store.AddTrigram([3]string{"a", "b", "c"})
+	store.AddTrigram([3]string{"b", "c", "d"})
+	store.AddTrigram([3]string{"b", "c", "e"})
+
+	text := store.MakeText()
+
+	if (text != "a b c d") {
+		t.Fatalf("Text is invalid. Got %s", text)
+	}
+}
+
 type TestChooser struct{}
 
 func (c *TestChooser) ChooseInitialTrigram(availableTrigrams TrigramMap) Trigram {
-	return Trigram{"word1", "word2", "word3"}
+	return Trigram{"a", "b", "c"}
 }
 
 func (c *TestChooser) ChooseNextWord(possibleWords map[string]int) string {
@@ -67,8 +82,4 @@ func (c *TestChooser) ChooseNextWord(possibleWords map[string]int) string {
 
 	sort.Strings(words)
 	return words[0]
-}
-
-func TestMakeText(t *testing.T) {
-
 }

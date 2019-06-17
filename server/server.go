@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/msandim/trigram/store"
@@ -14,12 +15,13 @@ import (
 
 // Server is ....
 type Server struct {
-	store *store.TrigramStore
+	store store.TrigramStore
+	port  int
 }
 
 // NewServer does ...
-func NewServer(store *store.TrigramStore) *Server {
-	return &Server{store: store}
+func NewServer(store store.TrigramStore, port int) *Server {
+	return &Server{store: store, port: port}
 }
 
 func (server *Server) learnHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +48,7 @@ func (server *Server) learnHandler(w http.ResponseWriter, r *http.Request) {
 	err = server.learnText(body)
 
 	if err != nil {
-		http.Error(w, fmt.Sprintf("error while learning this text: %s", err), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("error while learning text: %s", err), http.StatusBadRequest)
 	}
 }
 
@@ -109,5 +111,5 @@ func (server *Server) Run() {
 	http.HandleFunc("/learn", server.learnHandler)
 	http.HandleFunc("/generate", server.generateHandler)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(server.port), nil))
 }

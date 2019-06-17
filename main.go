@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	server := server.NewServer(store.NewTrigramStore(&store.RandomChooser{}))
+	server := server.NewServer(store.NewMapTrigramStore(&store.RandomChooser{}), 8080)
 	server.Run()
 }

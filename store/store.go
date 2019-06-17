@@ -11,17 +11,23 @@ type Trigram [3]string
 // TrigramMap is a 3-dimensional map which represents the frequency of each trigram.
 type TrigramMap map[string]map[string]map[string]int
 
-// TrigramStore represents the storage of trigrams found until now.
+// TrigramStore is
+type TrigramStore interface {
+	AddTrigram(trigram Trigram)
+	MakeText() string
+}
+
+// TrigramMapStore represents the storage of trigrams found until now.
 // It basically encapsulates a TrigramMap with a mutex and some functions which can be set to perform searches on the TrigramMap.
-type TrigramStore struct {
+type TrigramMapStore struct {
 	trigrams TrigramMap  // Check documentation of TrigramMap above.
 	mutex    *sync.Mutex // Mutex to control accesses to the TrigramMap
 	chooser  Chooser
 }
 
-// NewTrigramStore creates a new TrigramStore.
-func NewTrigramStore(chooser Chooser) *TrigramStore {
-	var store TrigramStore
+// NewMapTrigramStore creates a new TrigramStore.
+func NewMapTrigramStore(chooser Chooser) *TrigramMapStore {
+	var store TrigramMapStore
 	store.trigrams = make(map[string]map[string]map[string]int)
 	store.mutex = &sync.Mutex{}
 	store.chooser = chooser
@@ -29,7 +35,7 @@ func NewTrigramStore(chooser Chooser) *TrigramStore {
 }
 
 // AddTrigram adds a trigram to the store, increasing its "frequency" if it's already present in the store.
-func (store *TrigramStore) AddTrigram(trigram Trigram) {
+func (store *TrigramMapStore) AddTrigram(trigram Trigram) {
 
 	store.mutex.Lock()
 	defer store.mutex.Unlock()
@@ -54,7 +60,7 @@ func (store *TrigramStore) AddTrigram(trigram Trigram) {
 }
 
 // MakeText generates a random text with the trigrams present in the store.
-func (store *TrigramStore) MakeText() string {
+func (store *TrigramMapStore) MakeText() string {
 	store.mutex.Lock()
 	defer store.mutex.Unlock()
 
@@ -89,7 +95,7 @@ func (store *TrigramStore) MakeText() string {
 	return strings.Join(text, " ")
 }
 
-func (store *TrigramStore) getTrigramFreq(trigram Trigram) int {
+func (store *TrigramMapStore) getTrigramFreq(trigram Trigram) int {
 	store.mutex.Lock()
 	defer store.mutex.Unlock()
 	return store.trigrams[trigram[0]][trigram[1]][trigram[2]]
