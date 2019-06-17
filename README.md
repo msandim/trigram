@@ -5,6 +5,31 @@
 
 This Golang written program generates random texts, based on texts it already learned. These generated texts maintain the "style" of the the texts used for learning.
 
+## How can use this? 👩‍💻
+
+Getting the program: 
+- just clone this repository somewhere and `cd` into its main directory.
+
+Running the program:
+```
+make run
+```
+
+Running the tests:
+```
+make test
+```
+
+Running the tests and looking at their coverage:
+```
+make cover
+```
+
+When running, the program will expose two endpoints:
+
+`POST localhost:8080/learn` - feeds texts into the program.
+`GET localhost:8080/generate` - generates texts based on the ones fed previously.
+
 ## How does this work? 🛠
 
 This is achieved by structuring the learned texts in trigrams (groups of 3 words) and using its frequency to write the next word of the text.
@@ -44,15 +69,9 @@ Also:
 
 ## But how could you improve this natural beauty? 🌳 
 
-- Currently memory usage is fairly optimized.
-The trigrams are saved in a structure of type `map[string]map[string]map[string]int`, which represents a 3-dimensional map of frequencies of trigrams. `ourMap["a"]["b"]["c"]` being 3, means that this sequence of words was found 3 times during past learning processes.
+- Sharding when generating the texts: trigrams could be store in a "distributed" data store, each node responsible for a certain range of possible trigrams.
+This would make the program more efficient both at learning (because we weren't be writing always on the same memory space/node, as different trigrams would be allocated to different nodes) and generating (because we wouldn't be needing to request access to the same memory node).
+However it's important to say that this would increase the complexity of both operations slightly.
 
-Possible future improvements:
-- Mention about memory usage in having map([2]string)int vs what was done
-- Mention sharding that could be used for the trigrams
-- Mention parallelism in the parsing
-- For example, you could imagine a Slack bot that sends every message it sees to the POST /learn endpoint, while constantly generating text using the GET /generate endpoint. More "write intensive" app, so let's "prioritize" the channel that receives "save trigrams" requests
-
-Algorithm:
-
-the store runs on a different goroutine
+- Give priority somehow to `/learn` requests, as opposed to `generate` requests.
+Assuming this program would be used by a Slack bot, it makes sense the `/learn` endpoint will be a lot more used than the `/generate` one. It would be interesting if these operations could have a different priority in accessing the datastore (`/generate` would have a higher priority) in this case).
