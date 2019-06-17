@@ -1,3 +1,5 @@
+// Package server is responsible for handling requests and returning their response.
+// This envolves interacting with the `store` package to interact with the data structures where the current trigrams are saved.
 package server
 
 import (
@@ -13,13 +15,13 @@ import (
 	"github.com/msandim/trigram/store"
 )
 
-// Server is ....
+// Server is a structure can be used to run the program's server.
 type Server struct {
 	store store.TrigramStore
 	port  int
 }
 
-// NewServer does ...
+// NewServer builds a new Server structure.
 func NewServer(store store.TrigramStore, port int) *Server {
 	return &Server{store: store, port: port}
 }
@@ -89,7 +91,6 @@ func parseTrigrams(text string) ([]store.Trigram, error) {
 	return trigrams, nil
 }
 
-// GenerateHandler is
 func (server *Server) generateHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
@@ -106,7 +107,7 @@ func (server *Server) makeText() string {
 	return server.store.MakeText()
 }
 
-// Run does
+// Run starts the server. This function blocks until the server is stopped.
 func (server *Server) Run() {
 	http.HandleFunc("/learn", server.learnHandler)
 	http.HandleFunc("/generate", server.generateHandler)

@@ -1,3 +1,6 @@
+// Package store implements a data structure that is responsible for memorizing the trigrams learned so far.
+// It also holds the logic to generating random texts with these trigrams.
+// The main structure in this package (`TrigramStore`) can handle concurrent accesses.
 package store
 
 import (
@@ -5,20 +8,22 @@ import (
 	"sync"
 )
 
-// Trigram represents a sequence of 3 strings
+// Trigram represents a sequence of 3 strings.
 type Trigram [3]string
 
 // TrigramMap is a 3-dimensional map which represents the frequency of each trigram.
 type TrigramMap map[string]map[string]map[string]int
 
-// TrigramStore is
+// TrigramStore is represents the storage of trigrams found until now.
 type TrigramStore interface {
+	// AddTrigram adds a trigram to the store.
 	AddTrigram(trigram Trigram)
+	// MakeText generates a random text with the trigrams present in the store.
 	MakeText() string
 }
 
-// TrigramMapStore represents the storage of trigrams found until now.
-// It basically encapsulates a TrigramMap with a mutex and some functions which can be set to perform searches on the TrigramMap.
+// TrigramMapStore is an implementation of storage structure for trigrams, by using hash maps.
+// It basically encapsulates a TrigramMap with a mutex, as well as an object capable of choosing what trigram to choose next.
 type TrigramMapStore struct {
 	trigrams TrigramMap  // Check documentation of TrigramMap above.
 	mutex    *sync.Mutex // Mutex to control accesses to the TrigramMap
