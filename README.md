@@ -28,6 +28,7 @@ make cover
 When running, the program will expose two endpoints:
 
 `POST localhost:8080/learn` - feeds texts into the program.
+
 `GET localhost:8080/generate` - generates texts based on the ones fed previously.
 
 ## How does this work? 🛠
