@@ -33,13 +33,14 @@ When running, the program will expose two endpoints:
 
 ## How does this work? 🛠
 
-This is achieved by structuring the learned texts in trigrams (groups of 3 words) and using its frequency to write the next word of the text.
+This is achieved by structuring the learned texts in trigrams (groups of 3 words) and using its frequency to figure out the next word of the text.
 
 Given the text `To be or, to be or, not to be, that is the question`, the following trigrams are generated and saved in memory:
 
 ```
 [to, be, or]
 [be, or, to]
+[or, to, be]
 [to, be, or]
 [be, or, not]
 [or, not, to]
@@ -49,9 +50,10 @@ Given the text `To be or, to be or, not to be, that is the question`, the follow
 [that, is, the]
 [is, the, question]
 ```
-When generating a text, if the last 2 words we generated were `to` and `be`, we have in memory 2 possibilities for the third word: `or` or `that`. Note that we will have a 66% probability of choosing `or` as the next word, versus `that` which will a 33% chance, since `or` was 2 times more frequent than `that` in the `[to, be, _]` type of trigrams.
+When generating a text, if the last 2 words we generated were `to` and `be`, we have in memory 2 possibilities for the third word: `or` or `that`.
+Note that we will have a 66% probability of choosing `or` as the next word, versus `that` which will a 33% chance, since `or` was 2 times more frequent than `that` in the `[to, be, _]` type of trigrams.
 
-## How are these trigram beauties saved?
+## How are these trigram beauties saved? 🧠
 
 Currently memory usage is fairly optimized.
 The trigrams are saved in a structure of type `map[string]map[string]map[string]int`, which represents a 3-dimensional map of frequencies of trigrams.
@@ -66,7 +68,7 @@ It can't serve coffee yet, unfortunately.
 
 Also:
 - It can only generate texts up to 100 words.
-- It's prepared to ignore the following characters in texts: `.,;!?`. If the text has portions like `stuff - me`, `-` will be considered a word. Sorry.
+- It's only prepared to ignore the following characters in texts: `.,;!?`. If the text has portions like `stuff - me`, `-` will be considered a word. Sorry.
 
 ## But how could you improve this natural beauty? 🌳 
 
